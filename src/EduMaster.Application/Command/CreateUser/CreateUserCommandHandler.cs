@@ -17,7 +17,7 @@ public class CreateUserCommandHandler : ICommandHandler<CreateUserCommand, Guid>
 
     public async Task<Result<Guid>> Handle(CreateUserCommand request, CancellationToken cancellationToken)
     {
-        var existingUser = await _userRepository.GetByEmailAsync(request.Email, cancellationToken);
+        var existingUser = await _userRepository.GetByEmailOrRegistrationNumberAsync(request.Email, cancellationToken);
 
         if(existingUser != null) return Result.Failure<Guid>(UserErrors.EmailIsAreadyUsed);
 

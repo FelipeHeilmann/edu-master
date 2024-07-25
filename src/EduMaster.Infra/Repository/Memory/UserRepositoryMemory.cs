@@ -16,9 +16,9 @@ public class UserRepositoryMemory : IUserRepository
         return Task.FromResult<ICollection<User>>(_users);
     }
 
-    public Task<User?> GetByEmailAsync(string email, CancellationToken cancellationToken)
+    public Task<User?> GetByEmailOrRegistrationNumberAsync(string emailOrRegistrationNumber, CancellationToken cancellationToken)
     {
-        var user = _users.FirstOrDefault(user => user.Email == email);
+        var user = _users.FirstOrDefault(user => user.Email == emailOrRegistrationNumber || user.RegistrationNumber == emailOrRegistrationNumber);
         return Task.FromResult(user);
     }
 
