@@ -26,6 +26,7 @@ public class GetUserQueryHandler : IQueryHandler<GetUserQuery, Output>
                     Phone: user.PhoneFormatted,
                     CPF: user.CPFFormatted,
                     Status: user.Status,
+                    RegistrationNumber: user.RegistrationNumber,
                     Role: user.Role,
                     BirthDate: user.BirthDate.ToString("dd/MM/YYYY"),
                     EnrollmentDate: user.EnrollmentDate.ToString("dd/MM/YYYY")

@@ -9,6 +9,7 @@ public record Output(Guid Id,
                     string CPF, 
                     string Status, 
                     string Role, 
+                    string? RegistrationNumber,
                     string BirthDate, 
                     string EnrollmentDate);
 public record GetUserQuery(Guid Id) : IQuery<Output>;

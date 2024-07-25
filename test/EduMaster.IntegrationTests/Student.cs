@@ -45,6 +45,7 @@ public class Student
 
        Assert.Equal("John Doe", createdUser.Name);
        Assert.Equal(email, createdUser.Email);
+       Assert.Contains("RM", createdUser.RegistrationNumber);
        Assert.Equal("(11) 94999-2100", createdUser.Phone);
        Assert.Equal("568.661.720-12", createdUser.CPF);
        Assert.Equal("student", createdUser.Role);
