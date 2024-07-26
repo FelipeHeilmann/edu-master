@@ -1,18 +1,33 @@
+using EduMaster.Application.Abstractions.Service;
 using EduMaster.Application.Command.CreateUser;
+using EduMaster.Application.Command.Login;
 using EduMaster.Application.Query.GetUser;
 using EduMaster.Application.Users.Create;
 using EduMaster.Domain.Repository;
+using EduMaster.Infra.Authentication;
 using EduMaster.Infra.Repository.Memory;
+using Microsoft.Extensions.Options;
 using Xunit;
 
 namespace EduMaster.IntegrationTests;
 public class User
 {
     private readonly IUserRepository _userRepository;
+    private readonly ITokenService _tokenService;
 
     public User()
     {
         _userRepository = new UserRepositoryMemory();
+        var jwtOptions = new JwtOptions
+        {
+            SecretKey = "arweuhsahngvuishnbgvrsgwehvrswguohwrskgihbwgsdzknvbosbfodibsagd",
+            Issuer = "EduMaster",
+            Audience = "EduMaster"
+        };
+
+        var options = new OptionsWrapper<JwtOptions>(jwtOptions);
+
+        _tokenService = new JwtService(options);
     }       
 
     [Fact]
@@ -119,5 +134,34 @@ public class User
        Assert.Null(createdUser.RegistrationNumber);
        Assert.Equal("568.661.720-12", createdUser.CPF);
        Assert.Equal("admin", createdUser.Role);
+    }
+
+    [Fact]
+    public async Task Should_Login_Student()
+    {
+        var email = $"john.doe{new Random().NextInt64()}@gmail.com";
+
+        var createUserCommand = new CreateUserCommand(
+                                    Name:"John Doe", 
+                                    Email:email,
+                                    Password:"password", 
+                                    Phone:"(11) 94999-2100", 
+                                    CPF:"568.661.720-12", 
+                                    BirthDate: new DateTime(2004, 6, 11),
+                                    EnrollmentDate: DateTime.UtcNow,
+                                    Role: "student");
+        var createUserCommandHandler = new CreateUserCommandHandler(_userRepository);
+
+        await createUserCommandHandler.Handle(createUserCommand, CancellationToken.None);
+
+        var loginCommand = new LoginCommand(email, "password");
+
+        var loginCommandHandler = new LoginCommandHandler(_userRepository, _tokenService);
+
+        var outputLogin = await loginCommandHandler.Handle(loginCommand, CancellationToken.None);
+
+        var token = outputLogin.Value;
+
+        Assert.NotNull(token);
     }
 }

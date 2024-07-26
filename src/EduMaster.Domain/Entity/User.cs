@@ -46,6 +46,11 @@ public class User
         return new User(Guid.NewGuid(), name, new Email(email), BcryptPassword.Create(password), new Phone(phone), new CPF(cpf), role, status, GenerateRegistrationNumber(role) ,birthDate, enrollmentDate, DateTime.UtcNow);
     }
 
+    public bool PasswordMatches(string password)
+    {
+        return _password.PasswordMatches(password);
+    }
+
     private static string? GenerateRegistrationNumber(string role)
     {
         if(role == "student")
