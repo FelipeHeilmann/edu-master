@@ -1,8 +1,10 @@
+using System.Timers;
 using EduMaster.Application.Abstractions.Service;
 using EduMaster.Application.Command.CreateUser;
 using EduMaster.Application.Command.Login;
 using EduMaster.Application.Query.GetUser;
 using EduMaster.Application.Users.Create;
+using EduMaster.Domain.Errors;
 using EduMaster.Domain.Repository;
 using EduMaster.Infra.Authentication;
 using EduMaster.Infra.Repository.Memory;
@@ -163,5 +165,33 @@ public class User
         var token = outputLogin.Value;
 
         Assert.NotNull(token);
+    }
+
+    [Fact]
+    public async Task Should_Not_Login_With_Invalid_Credential()
+    {
+       var email = $"john.doe{new Random().NextInt64()}@gmail.com";
+
+        var createUserCommand = new CreateUserCommand(
+                                    Name:"John Doe", 
+                                    Email:email,
+                                    Password:"password", 
+                                    Phone:"(11) 94999-2100", 
+                                    CPF:"568.661.720-12", 
+                                    BirthDate: new DateTime(2004, 6, 11),
+                                    EnrollmentDate: DateTime.UtcNow,
+                                    Role: "student");
+        var createUserCommandHandler = new CreateUserCommandHandler(_userRepository);
+
+        await createUserCommandHandler.Handle(createUserCommand, CancellationToken.None);
+
+        var loginCommand = new LoginCommand(email, "passwor");
+
+        var loginCommandHandler = new LoginCommandHandler(_userRepository, _tokenService);
+
+        var outputLogin = await loginCommandHandler.Handle(loginCommand, CancellationToken.None);
+
+        Assert.Equal(UserErrors.InvalidCredencials, outputLogin.Error);
+        Assert.True(outputLogin.IsFailure);
     }
 }
