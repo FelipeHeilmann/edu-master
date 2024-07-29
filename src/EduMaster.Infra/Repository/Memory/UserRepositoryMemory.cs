@@ -28,13 +28,13 @@ public class UserRepositoryMemory : IUserRepository
         return Task.FromResult(user);
     }
 
-    public Task SaveAsync(User entity, CancellationToken cancellationToken)
+    public Task Save(User entity, CancellationToken cancellationToken)
     {
         _users.Add(entity);
         return Task.CompletedTask;
     }
 
-    public Task UpdateAsync(User entity, CancellationToken cancellationToken)
+    public Task Update(User entity, CancellationToken cancellationToken)
     {
         var index = _users.IndexOf(entity);
         
@@ -46,7 +46,7 @@ public class UserRepositoryMemory : IUserRepository
         return Task.CompletedTask;
     }
 
-    public Task DeleteAsync(User entity, CancellationToken cancellationToken)
+    public Task Delete(User entity, CancellationToken cancellationToken)
     {
         _users.Remove(entity);
         return Task.CompletedTask;

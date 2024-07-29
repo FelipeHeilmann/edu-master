@@ -23,7 +23,7 @@ public class CreateUserCommandHandler : ICommandHandler<CreateUserCommand, Guid>
 
         var user = User.Create(request.Name, request.Email, request.Password, request.Phone, request.CPF, request.Role, request.BirthDate, request.EnrollmentDate);
 
-        await _userRepository.SaveAsync(user, cancellationToken);
+        await _userRepository.Save(user, cancellationToken);
 
         return Result.Success(user.Id);        
     }
