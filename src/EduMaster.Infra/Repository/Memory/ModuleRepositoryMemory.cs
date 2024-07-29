@@ -16,6 +16,11 @@ public class ModuleRepositoryMemory : IModuleRepository
         return Task.FromResult<ICollection<Module>>(_modules);
     }
 
+      public Task<ICollection<Module>> ListBySubjectIdAsync(Guid subjectId, CancellationToken cancellationToken)
+    {
+        return Task.FromResult<ICollection<Module>>(_modules.Where(module => module.SubjectId == subjectId).ToList());
+    }
+
     public Task<Module?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
     {
         return Task.FromResult(_modules.FirstOrDefault(module => module.Id == id));
