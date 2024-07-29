@@ -1,7 +1,9 @@
 using System.Timers;
 using EduMaster.Application.Abstractions.Service;
+using EduMaster.Application.Command.CreateSubject;
 using EduMaster.Application.Command.CreateUser;
 using EduMaster.Application.Command.Login;
+using EduMaster.Application.Query.GetSubject;
 using EduMaster.Application.Query.GetUser;
 using EduMaster.Application.Users.Create;
 using EduMaster.Domain.Errors;
@@ -15,11 +17,13 @@ namespace EduMaster.IntegrationTests;
 public class User
 {
     private readonly IUserRepository _userRepository;
+    private readonly ISubjectRepository _subjectRepository;
     private readonly ITokenService _tokenService;
 
     public User()
     {
         _userRepository = new UserRepositoryMemory();
+        _subjectRepository = new SubjectRepositoryMemory();
         var jwtOptions = new JwtOptions
         {
             SecretKey = "arweuhsahngvuishnbgvrsgwehvrswguohwrskgihbwgsdzknvbosbfodibsagd",
@@ -194,7 +198,7 @@ public class User
     [Fact]
     public async Task Should_Not_Login_With_Invalid_Credential()
     {
-       var email = $"john.doe{new Random().NextInt64()}@gmail.com";
+        var email = $"john.doe{new Random().NextInt64()}@gmail.com";
 
         var createUserCommand = new CreateUserCommand(
                                     Name:"John Doe", 
@@ -217,5 +221,38 @@ public class User
 
         Assert.Equal(UserErrors.InvalidCredencials, outputLogin.Error);
         Assert.True(outputLogin.IsFailure);
+    }
+
+    [Fact]
+    public async Task Should_Create_Subject()
+    {
+        var email = $"john.doe{new Random().NextInt64()}@gmail.com";
+
+        var createUserCommand = new CreateUserCommand(
+                                    Name:"John Doe", 
+                                    Email:email,
+                                    Password:"password", 
+                                    Phone:"(11) 94999-2100", 
+                                    CPF:"568.661.720-12", 
+                                    BirthDate: new DateTime(2004, 6, 11),
+                                    EnrollmentDate: DateTime.UtcNow,
+                                    Role: "admin");
+        var createUserCommandHandler = new CreateUserCommandHandler(_userRepository);
+
+        var outputCreateUser = await createUserCommandHandler.Handle(createUserCommand, CancellationToken.None);
+
+        var createSubjectCommand = new CreateSubjectCommand("Física");
+
+        var createSubjectCommandHandler = new CreateSubjectCommandHandler(_subjectRepository);
+
+        var outputCreateSubject = await createSubjectCommandHandler.Handle(createSubjectCommand, CancellationToken.None);
+
+        var getSubjectQuery = new GetSubjectQuery(outputCreateSubject.Value);
+
+        var getSubjectQueryHandler = new GetSubjectQueryHandler(_subjectRepository);
+
+        var outputGetSubject = await getSubjectQueryHandler.Handle(getSubjectQuery, CancellationToken.None);
+
+        Assert.Equal("Física", outputGetSubject.Value.Name);
     }
 }
