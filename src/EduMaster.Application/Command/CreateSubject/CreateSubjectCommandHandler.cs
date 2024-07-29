@@ -24,6 +24,6 @@ public class CreateSubjectCommandHandler : ICommandHandler<CreateSubjectCommand,
 
         await _subjectRepository.Save(subject, cancellationToken);
 
-        return Result.Success(subject.Id);
+        return subject.Id;
     }
 }

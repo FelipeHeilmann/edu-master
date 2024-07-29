@@ -25,6 +25,6 @@ public class CreateUserCommandHandler : ICommandHandler<CreateUserCommand, Guid>
 
         await _userRepository.Save(user, cancellationToken);
 
-        return Result.Success(user.Id);        
+        return user.Id;        
     }
 }
