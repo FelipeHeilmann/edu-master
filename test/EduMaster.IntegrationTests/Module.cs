@@ -1,3 +1,4 @@
+using EduMaster.Application.Command.AddLeasonToModule;
 using EduMaster.Application.Command.CreateModule;
 using EduMaster.Application.Command.CreateSubject;
 using EduMaster.Application.Command.CreateUser;
@@ -112,5 +113,59 @@ public class Module
         Assert.Equal("Módulo 1", modules[0].Name);
         Assert.Equal("Módulo 2", modules[1].Name);
         Assert.Equal("Módulo 3", modules[2].Name);
+    }
+
+
+    [Fact]
+    public async Task Should_Add_Lesson_To_Module()
+    {
+        var email = $"john.doe{new Random().NextInt64()}@gmail.com";
+
+        var createUserCommand = new CreateUserCommand(
+                                    Name:"John Doe", 
+                                    Email:email,
+                                    Password:"password", 
+                                    Phone:"(11) 94999-2100", 
+                                    CPF:"568.661.720-12", 
+                                    BirthDate: new DateTime(2004, 6, 11),
+                                    EnrollmentDate: DateTime.UtcNow,
+                                    Role: "admin");
+        var createUserCommandHandler = new CreateUserCommandHandler(_userRepository);
+
+        var outputCreateUser = await createUserCommandHandler.Handle(createUserCommand, CancellationToken.None);
+
+        var createSubjectCommand = new CreateSubjectCommand("Física");
+
+        var createSubjectCommandHandler = new CreateSubjectCommandHandler(_subjectRepository);
+
+        var outputCreateSubject = await createSubjectCommandHandler.Handle(createSubjectCommand, CancellationToken.None);
+
+        var createModuleCommand = new CreateModuleCommand("Módulo 1", "Descricao", outputCreateSubject.Value);
+
+        var createModuleCommandHandler = new CreateModuleCommandHandler(_moduleRepository);
+
+        var outputCreateModule = await createModuleCommandHandler.Handle(createModuleCommand, CancellationToken.None);
+        
+        var addLessonToModuleCommand = new AddLessonToModuleCommand(outputCreateModule.Value, "Tópico da aula", new List<LessonContentCommand>()
+        {
+            new LessonContentCommand("Apostila", "Apostila de física", "PDF", "path"),
+            new LessonContentCommand("Video", "Vídeo da aula de física", "Vídeo", "path"),
+            new LessonContentCommand("Artigo", "Artigo sobre relatividade", "PDF", "path"),
+        }); 
+
+        var addLessonToModuleCommanHandler = new AddLesssonToModuleCommandHandler(_moduleRepository);
+
+        await addLessonToModuleCommanHandler.Handle(addLessonToModuleCommand, CancellationToken.None);
+
+        var getModuleQuery = new GetModuleQuery(outputCreateModule.Value);
+
+        var getModuleQueryHandler = new GetModuleQueryHandler(_moduleRepository, _subjectRepository);
+
+        var outputGetModule = await getModuleQueryHandler.Handle(getModuleQuery, CancellationToken.None);
+
+        var module = outputGetModule.Value;
+
+        Assert.Single(module.Lessons.ToList());
+        Assert.Equal(3, module.Lessons.ToList()[0].Contents.Count());
     }
 }     

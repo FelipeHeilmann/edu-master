@@ -33,7 +33,17 @@ public class GetModuleQueryHandler : IQueryHandler<GetModuleQuery, Output>
             new SubjectOutput(
                 subject.Id,
                 subject.Name
-            )
+            ),
+            module.Lessons.Select(lesson =>
+                new LessonsOutput(lesson.Id, 
+                                  lesson.Title, 
+                                  lesson.Contents.Select(content =>
+                                  new ContentOutput(content.Id,
+                                                    content.Title,
+                                                    content.Description,
+                                                    content.ContentType, 
+                                                    content.ContentUrl)).ToList()))
+                                .ToList()
         );
     }
 }
