@@ -18,7 +18,7 @@ public class JwtService : ITokenService
 
     public string GenerateAuthToken(Guid id, string email)
     {
-         var claims = new Claim[]
+        var claims = new Claim[]
         {
             new(JwtRegisteredClaimNames.Sub, id.ToString()),
             new(JwtRegisteredClaimNames.Email, email)

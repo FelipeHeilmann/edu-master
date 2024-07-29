@@ -20,16 +20,16 @@ public class GetUserQueryHandler : IQueryHandler<GetUserQuery, Output>
         if(user == null) return Result.Failure<Output>(UserErrors.UserNotFound);
 
         return new Output(
-                    Id: user.Id,
-                    Name: user.Name,
-                    Email: user.Email,
-                    Phone: user.PhoneFormatted,
-                    CPF: user.CPFFormatted,
-                    Status: user.Status,
-                    RegistrationNumber: user.RegistrationNumber,
-                    Role: user.Role,
-                    BirthDate: user.BirthDate.ToString("dd/MM/YYYY"),
-                    EnrollmentDate: user.EnrollmentDate.ToString("dd/MM/YYYY")
+                Id: user.Id,
+                Name: user.Name,
+                Email: user.Email,
+                Phone: user.PhoneFormatted,
+                CPF: user.CPFFormatted,
+                Status: user.Status,
+                RegistrationNumber: user.RegistrationNumber,
+                Role: user.Role,
+                BirthDate: user.BirthDate.ToString("dd/MM/YYYY"),
+                EnrollmentDate: user.EnrollmentDate.ToString("dd/MM/YYYY")
         );
     }
 }
