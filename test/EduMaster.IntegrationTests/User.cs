@@ -168,6 +168,30 @@ public class User
     }
 
     [Fact]
+    public async Task Shoud_Not_Create_User_With_Email_In_Use()
+    {
+        var email = $"john.doe{new Random().NextInt64()}@gmail.com";
+
+        var createUserCommand = new CreateUserCommand(
+                                    Name:"John Doe", 
+                                    Email:email,
+                                    Password:"password", 
+                                    Phone:"(11) 94999-2100", 
+                                    CPF:"568.661.720-12", 
+                                    BirthDate: new DateTime(2004, 6, 11),
+                                    EnrollmentDate: DateTime.UtcNow,
+                                    Role: "student");
+        var createUserCommandHandler = new CreateUserCommandHandler(_userRepository);
+
+        await createUserCommandHandler.Handle(createUserCommand, CancellationToken.None);
+
+        var result = await createUserCommandHandler.Handle(createUserCommand, CancellationToken.None);
+
+        Assert.True(result.IsFailure);
+        Assert.Equal(UserErrors.EmailIsAreadyUsed, result.Error);
+    }
+
+    [Fact]
     public async Task Should_Not_Login_With_Invalid_Credential()
     {
        var email = $"john.doe{new Random().NextInt64()}@gmail.com";
